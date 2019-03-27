@@ -41,6 +41,22 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+// swap byte endian
+//more explain about Big Endian and Little Endianhttps://songlee24.github.io/2015/05/02/endianess/
+uint32_t swapE32(uint32_t x) {
+    x = (x & 0xffff0000) >> 16 | (x & 0x0000ffff) << 16;
+    x = (x & 0xff00ff00) >>  8 | (x & 0x00ff00ff) <<  8;
+    return x;
+}
+
+uint64_t swapE64(uint64_t x) {
+    x = (x & 0xffffffff00000000) >> 32 | (x & 0x00000000ffffffff) << 32;
+    x = (x & 0xffff0000ffff0000) >> 16 | (x & 0x0000ffff0000ffff) << 16;
+    x = (x & 0xff00ff00ff00ff00) >>  8 | (x & 0x00ff00ff00ff00ff) <<  8;
+    return x;
+}
+
+
 
 void sha256(){
 
@@ -84,7 +100,7 @@ void sha256(){
         0xa54ff53a, 
         0x510e527f, 
         0x9b05688c, 
-        0x1f83d9ab, å
+        0x1f83d9ab, 
         0x5be0cd19
 	};
 
