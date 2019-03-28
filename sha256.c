@@ -9,10 +9,11 @@
 ** 将光标移至需paste的地方 按下 p 键 **
 ** Move to paste line click P **/
 
-
+#include <assert.h>
+#include <stdlib.h>
 //The usual inpurt and output header file
 #include <stdio.h>
-
+#include <string.h>
 //For using fixed bit length integerry
 #include <stdint.h>
 
@@ -37,12 +38,23 @@ uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 
 int main(int argc, char *argv[]) {
-    sha256();
-    return 0;
+    char M[Max];
+    printf("please inuput :");
+    scanf("%s",M);
+    int n = strlen(M);
+    printf("aaaaa %d\n",n);
+     printf("aaaaa %d\n",argc);
+    if( n == '\0'){
+        printf("please input valid:\n");
+        return 0;
+    }else {
+        sha256(M);
+        return 0;
+    }
 }
 
 // swap byte endian
-//more explain about Big Endian and Little Endianhttps://songlee24.github.io/2015/05/02/endianess/
+//more https://songlee24.github.io/2015/05/02/endianess/
 uint32_t swapE32(uint32_t x) {
     x = (x & 0xffff0000) >> 16 | (x & 0x0000ffff) << 16;
     x = (x & 0xff00ff00) >>  8 | (x & 0x00ff00ff) <<  8;
@@ -56,9 +68,8 @@ uint64_t swapE64(uint64_t x) {
     return x;
 }
 
-
-
-void sha256(){
+void sha256(char* M[]){
+     
 
 	//The K constants, defined in Section 4.2.2
 	uint32_t K[] = {
@@ -105,17 +116,19 @@ void sha256(){
 	};
 
 	//The current message black
-	uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0, 0};
+	//uint32_t M[16] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 	//For looping
 	int i, t;
+    
+
 
   //Loop through message blocks as per page 22
 	for (i = 0; i < 1; i++) {
 	
         //From page 22, W[t] = M[t] for 0 <= t <= 15.
         for (t = 0; t < 16; t++)
-            W[t] = M[t];
+            W[t] = swapE32((uint32_t)M[t]);
 
         //From page 22 W[t]=...
         for(t = 16; t < 64; t++)
