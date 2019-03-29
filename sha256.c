@@ -325,10 +325,16 @@ int nextmsgblock(FILE *msgf, union msgblock *M,enum status *s, uint64_t *nobits)
 
     // If we get down here.We have not finished reading the file (s == READ)
     // C 库函数 size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream) 从给定流 stream 读取数据到 ptr 所指向的数组中。
-    // miners 1 because in the file always include last '\0'.
-    nobytes = fread(M->e, 1, 64, msgf) - 1;
     
-    printf("fread: %llu\n",nobytes);
+    nobytes = fread(M->e, 1, 64, msgf);
+    //Just for check
+    printf("fread1: %llu\n",nobytes);
+    if (nobytes > 1){
+        // miners 1 because in the byte of file size always include last '\0'
+        nobytes = nobytes - 1;
+        // Just for check
+        printf("fread: %llu\n",nobytes);
+    }
     
     //Keep track of the number of bytes we've read
     *nobits = *nobits + (nobytes * 8);
