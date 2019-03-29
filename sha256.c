@@ -19,8 +19,6 @@
 
 #define Max 1000
 
-void sha256();
-
 //See Section 4.1.2 and 4.2.2 for definitions.
 uint32_t sig0(uint32_t x);
 uint32_t sig1(uint32_t x);
@@ -37,40 +35,55 @@ uint32_t SIG1(uint32_t x);
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 
-int main(int argc, char *argv[]) {
-    char M[Max];
-    printf("please inuput :");
-    scanf("%s",M);
-    int n = strlen(M);
-    printf("aaaaa %d\n",n);
-     printf("aaaaa %d\n",argc);
-    if( n == '\0'){
-        printf("please input valid:\n");
-        return 0;
-    }else {
-        sha256(M);
-        return 0;
-    }
-}
+union msgblock {
+    uint8_t e[64];
+    uint32_t t[16];
+    uint64_t s[1];
+};
+
+enum status {
+    READ,
+    PAD0,
+    PAD1,
+    FINISH  
+};
+
+int nextmsgblock(union msgblock *M,enum status *s, uint64_t nobits);
+
+//int main(int argc, char *argv[]) {
+//    msgblockmethod();
+//    char M[Max];
+//    printf("please inuput :");
+//    scanf("%s",M);
+//    int n = strlen(M);
+//    printf("M size %d\n",n);
+//     //printf("argc: %d\n",argc);
+//    if(argc < 2){
+//        printf("please input valid:\n");
+//        return 0;
+//    }else {
+//        sha256();
+//        return 0;
+//    }
+//}
 
 // swap byte endian
 //more https://songlee24.github.io/2015/05/02/endianess/
-uint32_t swapE32(uint32_t x) {
-    x = (x & 0xffff0000) >> 16 | (x & 0x0000ffff) << 16;
-    x = (x & 0xff00ff00) >>  8 | (x & 0x00ff00ff) <<  8;
-    return x;
-}
+//uint32_t swapE32(uint32_t x) {
+//    x = (x & 0xffff0000) >> 16 | (x & 0x0000ffff) << 16;
+//    x = (x & 0xff00ff00) >>  8 | (x & 0x00ff00ff) <<  8;
+//    return x;
+//}
 
-uint64_t swapE64(uint64_t x) {
-    x = (x & 0xffffffff00000000) >> 32 | (x & 0x00000000ffffffff) << 32;
-    x = (x & 0xffff0000ffff0000) >> 16 | (x & 0x0000ffff0000ffff) << 16;
-    x = (x & 0xff00ff00ff00ff00) >>  8 | (x & 0x00ff00ff00ff00ff) <<  8;
-    return x;
-}
+//uint64_t swapE64(uint64_t x) {
+//    x = (x & 0xffffffff00000000) >> 32 | (x & 0x00000000ffffffff) << 32;
+//    x = (x & 0xffff0000ffff0000) >> 16 | (x & 0x0000ffff0000ffff) << 16;
+//    x = (x & 0xff00ff00ff00ff00) >>  8 | (x & 0x00ff00ff00ff00ff) <<  8;
+//    return x;
+//}
 
-void sha256(char* M[]){
+void sha256(char *M[]){
      
-
 	//The K constants, defined in Section 4.2.2
 	uint32_t K[] = {
 		0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 
@@ -121,8 +134,6 @@ void sha256(char* M[]){
 	//For looping
 	int i, t;
     
-
-
   //Loop through message blocks as per page 22
 	for (i = 0; i < 1; i++) {
 	
@@ -165,6 +176,62 @@ void sha256(char* M[]){
     
     printf("%x %x %x %x %x %x %x %x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 }
+
+int msgblockmethod(int argc, char *argv[]) {
+	union msgblock M;
+	uint64_t nobytes;
+	uint64_t nobits = 0;
+	int i =0;
+
+	enum status s = READ;
+
+	while (s == READ) {
+		nobytes = size[M];
+		printf("%llu\n", nobytes);
+		nobits = nobits + (nobytes * 8);
+
+		if(nobytes < 56){
+			printf("I've Found a block with less then 55 bytes\n");
+			M.e[nobytes] = 0x80;
+			while(nobytes < 56){
+				
+				nobytes = nobytes + 1;
+				M[nobytes] = 0x00;
+			}
+
+			M.s[7] = nobits;
+			s = FINISH;
+		}else if (nobytes < 64){
+			s = PAD0;
+			M.e[nobytes] = 0X80;
+			while( nobytes < 64){
+				nobytes = nobytes + 1;
+				M.e[nobytes] = 0x00;
+			}
+		}else if(feof(f)){
+			 s = PAD1;
+		}
+	} // end loop
+
+	 
+	if(s == PAD0 || s == PAD1){
+		for(i =0; i<56; i++){
+			M.e[i] = 0x00;
+		}
+		M.s[7] = nobits;
+	}
+	if(s == PAD1){
+		M.e[0] = 0x80;
+	}
+	
+	fclose(f);
+
+	for(int i= 0; i < 64; i++)
+		printf("%x ", M.e[i]);
+		printf("\n");
+
+	return 0;
+} // end main
 
 //See Sections 3.2 for definitions
 uint32_t rotr(uint32_t n, uint32_t x) {
