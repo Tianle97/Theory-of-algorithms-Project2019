@@ -16,7 +16,8 @@ int main(int argc,char *argv[]) {
     uint64_t nobytes;
     
     FILE* f;
-    //Open the file
+    //Open the file and it is a only read model
+    //https://blog.csdn.net/libing403/article/details/73136244
     f = fopen(argv[1],"r");
     
     //feof()是函数，用来检测文件的结束；
@@ -39,7 +40,7 @@ int main(int argc,char *argv[]) {
     fclose(f);
     
     for(int i = 0; i < 64; i++)
-        printf("%x ",M.e[i]);
+        printf("@@@ %x ",M.e[i]);
     printf("\n");
     
     return 0;
