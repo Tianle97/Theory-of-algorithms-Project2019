@@ -13,6 +13,21 @@ The input data can literally be any data, whether it’s the entire Encyclopedia
 C (/siː/, as in the letter c) is a general-purpose, imperative computer programming language, supporting structured programming, lexical variable scope and recursion, while a static type system prevents many unintended operations. By design, C provides constructs that map efficiently to typical machine instructions, and it has therefore found lasting use in applications that were previously coded in assembly language. Such applications include operating systems, as well as various application software for computers ranging from supercomputers to embedded systems.</br>
 C is an imperative procedural language. It was designed to be compiled using a relatively straightforward compiler, to provide low-level access to memory, to provide language constructs that map efficiently to machine instructions, and to require minimal runtime support. Despite its low-level capabilities, the language was designed to encourage cross-platform programming. A standards-compliant C program that is written with portability in mind can be compiled for a wide variety of computer platforms and operating systems with few changes to its source code; the language has become available on various platforms, from embedded microcontrollers to supercomputers.
 ![C](https://github.com/Tianle97/Theory-of-algorithms-Project2019/blob/master/Elements/C.jpg)
+## *hash result*
+This assignment finish main follow videos uploaded by Dr.Ian McLoughlin.
+And this is my result hash:
+![result](https://github.com/Tianle97/Theory-of-algorithms-Project2019/blob/master/Elements/test.png)
+## *How to Run*
+ * 1 Git clone or download this repository
+ * 2 Open cmder and go to this project path
+ * 3 Type this code in cmder: <br/>
+   Compile >  `gcc -o sha256 sha256.c` </br>
+   Execute >  `./sha256 test txt` </br>
+ Or</br>
+   Compile >  `gcc -o hash hash.c`</br>
+   Execute >  `./hash "input what you want"` </br>
+ 
+ * 4 Then you will get the hash result
 
 ## *Explain the principle of SHA256 (Step Explain)*
 In order to better understand the principle of SHA256, we first introduce the modules that can be extracted separately in the algorithm, including `the initialization of constants`, `the preprocessing of information`, and `the logical operations used`, and then explore these obstacles and explore them together. The main part of the SHA256 algorithm: `how the message digest is calculated`.
@@ -193,14 +208,11 @@ Add this chunk's hash to result so far:
 ```
 last step is print the value
 
-This Project finish under the guidance of video lectures uploaded by Dr.Ian McLoughlin.
-And this is my result hash:
-![result](https://github.com/Tianle97/Theory-of-algorithms-Project2019/blob/master/Elements/test.png)
 
-
-## *Reference*
+## *References*
 * C: https://en.wikipedia.org/wiki/C_(programming_language) <br/>
 * Sha256: https://en.wikipedia.org/wiki/SHA-2 <br/>
 * fread():http://www.runoob.com/cprogramming/c-function-fread.html</br>
 * calloc(): http://c.biancheng.net/cpp/html/134.html
 * memcpy(): https://blog.csdn.net/tigerjibo/article/details/6841531</br>
+* swap_uint32() and swap_uint64(): https://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func</br>
