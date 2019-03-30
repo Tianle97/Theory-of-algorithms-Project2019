@@ -272,7 +272,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M,enum status *s, uint64_t *nobits)
 		}
         
         // Set the last 64 bits to the number of bits in the file (should be big-endien)
-		M->s[7] = *nobits;
+		M->s[7] = swapE64(*nobits);
         
         // Tell 's' we are finish
         *s = FINISH;
@@ -292,19 +292,11 @@ int nextmsgblock(FILE *msgf, union msgblock *M,enum status *s, uint64_t *nobits)
     nobytes = fread(M->e, 1, 64, msgf);
     
     //Just for check
-    printf("fread1: %llu\n",nobytes);
-    if (nobytes > 1){
-        
-        // '- 1' because in the byte of file size always include last '\0'
-        nobytes = nobytes - 1;
-        
-        // Just for check
-        printf("fread: %llu\n",nobytes);
-    }
+  //  printf("fread1: %llu\n",nobytes);
     
     //Keep track of the number of bytes we've read
     *nobits = *nobits + (nobytes * 8);
-    *nobits = swapE64(*nobits);
+    //*nobits = swapE64(*nobits);
     
     // If we read less than 56, we can put all padding in this message block
     if(nobytes < 56){
@@ -319,7 +311,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M,enum status *s, uint64_t *nobits)
         }
         
         //Append the file size in bits as a (should be big endian unsigned 64 bit int)
-        M->s[7] = *nobits;
+        M->s[7] = swapE64(*nobits);
         
         //Tell us FINISH
         *s = FINISH;
