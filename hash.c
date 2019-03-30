@@ -69,8 +69,10 @@ void sha256(char *msg){
     //void* calloc (size_t num, size_t size);
     //calloc() 函数用来动态地分配内存空间并初始化为 0
     char* msgPad = (char*)calloc((msgSize / 8), sizeof(char));
+    
     //C 库函数 void *memcpy(void *str1, const void *str2, size_t n) 从存储区 str2 复制 n 个字符到存储区 str1。
     memcpy(msgPad, msg, len);
+    
     msgPad[len] = 0x80;
     
     l = swapE64(l);
@@ -137,6 +139,7 @@ void sha256(char *msg){
 	for (t = 0; t < 16; t++) {
         W[t] = swapE32(M[t]);
     }
+        
     // Debug
 //    printf("a ");
 //    for (int h = 0; h < 64; h++) {
@@ -184,12 +187,11 @@ void sha256(char *msg){
 uint32_t rotr(uint32_t x, uint32_t n) {
     return (x >> n) | (x << (32-n));
 }
-
 uint32_t shr(uint32_t x, uint32_t n) {
     return x >> n;
 }
 
-
+// See Sections 3.2 and 4.1.2 for definitions
 uint32_t sig0(uint32_t x) {
     return rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3);
 }
@@ -204,10 +206,10 @@ uint32_t EP0(uint32_t x) {
 uint32_t EP1(uint32_t x) {
 	return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
 }
+
 //See Section 4.1.2 for definitions
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z) {
 	return (x & y) ^ ((~x) & z);
-
 }
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z) {
 	return (x & y) ^ (x & z) ^ (y & z);
