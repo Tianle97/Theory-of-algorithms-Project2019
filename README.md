@@ -1,7 +1,5 @@
 # Theory-of-Algorithms-Project2019
-Theory-of-Algorithms-Project2019
-
-#### Lecturer: *Ian McLoughlin*
+#### Lecturer: *Dr.Ian McLoughlin*
 #### Student Name: *Tianle Shu*
 #### Student ID: *G00341565*
 
@@ -42,7 +40,7 @@ the `sqrt{2}` fractional part is about `0.414213562373095048`, so:</br>
 0.414213562373095048 ≈ 6∗16+a∗16+0∗16+...</br>
 Therefore, the fractional part of the square root of the prime number `2 `takes the first `32 bits` and corresponds to `0x6a09e667`.</br>
 
-+ *64 constants*:</br>
+#### *64 constants*:
 In the SHA256 algorithm, the 64 constants used are as follows:</br>
 ``` C
 //The K constants, defined in Section 4.2.2
@@ -67,16 +65,18 @@ In the SHA256 algorithm, the 64 constants used are as follows:</br>
   ```
  Similar to the initial values of 8 hashes, these constants are the first 64 prime numbers in the natural number (2,3,5,7,11,13,17,19,23,29,31,37,41,43,47, The fractional part of the cube root of 53,59,61,67,71,73,79,83,89,97...) takes the first 32 bits.</br>
 
-+ *pre-processin*</br>
+#### *pre-processin*
 The preprocessing in the SHA256 algorithm is to supplement the required information after the message that wants the Hash so that the entire message satisfies the specified structure.</br>
-The preprocessing of information is divided into two steps: `additional padding bits` and `additional length`</br>
-
+The preprocessing of information is divided into two steps: `additional padding bits` and `additional length`
+</br>
+</br>
 *STEP1:* Additional Padding Bits</br>
 The padding is done by first filling the first bit to 1 and then adding 0 until the length is equal to 448 and the remainder is 448.
 It should be noted that the information must be filled, that is, even if the length is already satisfied, the remainder of the 512 modulo is 448, and the complement must be performed, at which time 512 bits are filled.
-Therefore, the padding is at least one bit and up to 512 bits.</br>
+Therefore, the padding is at least one bit and up to 512 bits.
+</br>
+</br>
 For Example: The information `abc` is taken as an example to show the process of complementing.
-
 The [ASCII](http://ascii.911cha.com/) codes corresponding to a, b, and c are 97, 98, and 99, respectively.</br>
 The binary code of the original information is: 01100001 01100010 01100011</br>
 Firstly make up a "1": 0110000101100010 01100011 1</br>
@@ -88,16 +88,119 @@ The data after the completion of the complement is as follows (in order to intro
 00000000 00000000 00000000 00000000
 00000000 00000000
 ```
-`Why is 448?`</br>
+
+`Why is 448?`
 Because after the first step of preprocessing, the second step will add a 64-bit data to indicate the length of the original message. And 448+64=512, just spelled a complete structure.
+</br>
 
 *STEP2:* Additional Length Value
-Additional Length Value is append length of message (before pre-processing), in bits, as 64-bit big-endian integer.</br>
-SHA256 uses a 64-bit data to represent the length of the original message.
+Additional Length Value is append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
+SHA256 uses a 64-bit data to represent the length of the original message.</br>
 Therefore, the message length calculated by SHA256 must be less than `2^64`, which is of course large enough in most cases.
-The length information is encoded as 64-bit big-endian integer
+The length information is encoded as 64-bit big-endian integer.</br>
+Back to the example just now, the message `abc`, 3 characters, so occupies is 24 bits.
+Therefore, after the complement length operation, the entire message becomes as follows (hexadecimal format)
+```C
+61626380 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000018
+```
+
+#### Logic Calculation
+The operations involved in the SHA256 hash function are all logical bit operations.</br>
+SHA-256 use six logical functions, where each function operates on 32-bit
+words, which are represented as x, y, and z. The result of each function is a new 32-bit word.
+Includes the following logic functions:</br>
+```C
+//See Sections 3.2 for definitions
+uint32_t rotr(uint32_t x, uint32_t n) {
+    return (x >> n) | (x << (32-n));
+}
+uint32_t shr(uint32_t x, uint32_t n) {
+    return x >> n;
+}
+// See Sections 3.2 and 4.1.2 for definitions
+uint32_t sig0(uint32_t x) {
+    return rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3);
+}
+uint32_t sig1(uint32_t x) {
+    return rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10);
+}
+//See Section 4.1.2 for definitions
+uint32_t EP0(uint32_t x) {
+	return rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22);
+}
+uint32_t EP1(uint32_t x) {
+	return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
+}
+
+//See Section 4.1.2 for definitions
+uint32_t Ch(uint32_t x, uint32_t y, uint32_t z) {
+	return (x & y) ^ ((~x) & z);
+}
+uint32_t Maj(uint32_t x, uint32_t y, uint32_t z) {
+	return (x & y) ^ (x & z) ^ (y & z);
+}
+```
+
+#### *Calculate message digest*
+Firstly break message into 512-bit chunks: break chunk into sixteen 32-bit big-endian words w[0..15].Extend the sixteen 32-bit words into sixty-four 32-bit words:
+```C
+for(t = 16; t < 64; t++)
+    W[t] = sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
+ 
+```
+
+Initialize hash value for this chunk( a, b, c, ... , h) as per Step 2 Page 22
+```C
+a = H[0]; b = H[1]; c = H[2]; d = H[3];
+e = H[4]; f = H[5]; g = H[6]; h = H[7];
+```
+
+step3 
+64 encryption cycles
+That is, an iteration of 64 encryption cycles is completed.
+Each encryption cycle can be described by the following figure:</br>
+图中，ABCDEFGH这8个字（word）在按照一定的规则进行更新，其中深蓝色方块是事先定义好的非线性逻辑函数，上文已经做过铺垫。</br>
+红色田字方块代表 `mod 2^{32} addition`，即将两个数字加在一起，如果结果大于`2^{32}` ，你必须除以 ，你必须除以，你必须除以 `2^{32}` 并找到余数。
+ABCDEFGH一开始的初始值分别为`H_{i-1}(0),H_{i-1}(1),…,H_{i-1}(7)`</br>
+Kt是第t个密钥，对应我们上文提到的64个常量。</br>
+Wt是本区块产生第t个word。原消息被切成固定长度512-bit的区块，对每一个区块，产生64个word，通过重复运行循环n次对ABCDEFGH这八个字循环加密。</br>
+最后一次循环所产生的八个字合起来即是第i个块对应到的散列字符串`H_{i}` </br>
+![ll](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/SHA-2.svg/400px-SHA-2.svg.png)
+```C
+for (t = 0; t < 64; t++) {
+            T1 = h + EP1(e) + Ch(e, f, g) + K[t] + W[t];
+            T2 = EP0(a) + Maj(a, b, c);
+            h = g;
+            g = f;
+            f = e;
+            e = d + T1;
+            d = c;
+            c = b;
+            b = a;
+            a = T1 + T2;
+        }
+```
+step4</br>
+Add this chunk's hash to result so far:
+```C
+	H[0] = a + H[0]; H[1] = b + H[1];
+        H[2] = c + H[2]; H[3] = d + H[3];
+        H[4] = e + H[4]; H[5] = f + H[5];
+        H[6] = g + H[6]; H[7] = h + H[7];
+```
+last step is print the value
+
+This Project finish under the guidance of video lectures uploaded by Dr.Ian McLoughlin.
+And this is my result hash:
+![result](https://github.com/Tianle97/Theory-of-algorithms-Project2019/blob/master/Elements/test.png)
 
 
 ## *Reference*
 * C: https://en.wikipedia.org/wiki/C_(programming_language) <br/>
 * Sha256: https://en.wikipedia.org/wiki/SHA-2 <br/>
+* fread():http://www.runoob.com/cprogramming/c-function-fread.html</br>
+* calloc(): http://c.biancheng.net/cpp/html/134.html
+* memcpy(): https://blog.csdn.net/tigerjibo/article/details/6841531</br>
