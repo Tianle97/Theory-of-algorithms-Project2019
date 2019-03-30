@@ -292,7 +292,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M,enum status *s, uint64_t *nobits)
     nobytes = fread(M->e, 1, 64, msgf);
     
     //Just for check
-  //  printf("fread1: %llu\n",nobytes);
+    //  printf("fread1: %llu\n",nobytes);
     
     //Keep track of the number of bytes we've read
     *nobits = *nobits + (nobytes * 8);
